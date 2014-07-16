@@ -1,0 +1,21 @@
+sort county year
+by county: ipolate ginicoefficient year, gen(egini) epolate
+
+merge m:1 county using tn.counties-land_water.area_sqmi.dta
+
+merge 1:1 county year using tn.counties_2008_handgun.carry.permits.dta, keepusing(permits) update
+merge 1:1 county year using tn.counties_2009_handgun.carry.permits.dta, keepkeepusing(permits) update
+merge 1:1 county year using tn.counties_2010_handgun.carry.permits.dta, keepkeepusing(permits) update
+
+gen dry = 0
+replace dry = 1 if county == "Campbell" | county == "Crockett" | county == "Carter" | county == "Hancock" | county == "Sevier" | county == "Stewart" | county == "White" | county == "Weakley" | county == "Moore"
+
+gen popdns = population/landsqmi
+gen handguncrimerate = (handguncrimes/population)*1000
+gen drugviolationsrate = (drugviolations/population)*1000
+gen unemploymentrate = unemployed/laborforce
+gen personalincomepercapita = personalincome/population
+
+sum
+
+reg handguncrimesrate  permits popdns personalincomepercapita unemploymentrate drugviolationsrate dry, r

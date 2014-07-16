@@ -1,0 +1,31 @@
+# Rename variable
+rename estimatedpopulation population
+
+# Order variables in list
+order year fips county handguncrimes totalsqmi landsqmi watersqmi population laborforce employed unemployed personalincome personalincomepercapita ginicoefficient
+
+# Or move a single variable after another (also works with before)
+order year, after(county)
+
+# Describe or list variables in an unloaded Stata dataset
+desc using tn.counties-land_water.area_sqmi.dta
+
+# Merge many variables in cross-section data to one in panel data
+merge m:1 county using tn.counties-land_water.area_sqmi.dta
+
+# Interpolate/Extrapolate Gini Data
+sort county year
+by county: ipolate ginicoefficient year, gen(egini) epolate
+
+# Convert numbers that are imported as strings with commas to remove
+destring permits, replace ignore(",")
+
+# Create Dry county dummy variables
+gen dry = 0
+replace dry = 1 if county == "Campbell" | county == "Crockett" | county == "Carter" | county == "Hancock" | county == "Sevier" | county == "Stewart" | county == "White" | county == "Weakley" | county == "Moore"
+
+# Since the summation command oddly doesn't provide the summation of a variable's values
+tabstat total, stat(count sum mean sd min max)
+
+# Or similarly
+total handguncrimes, over(year)
